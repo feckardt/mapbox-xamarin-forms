@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Xamarin.Forms;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace MapBoxQs
 {
@@ -108,5 +109,50 @@ namespace MapBoxQs
 			map.ZoomLevel -= 1.0f;
 		}
 
+        void AddPolygon(object sender, EventArgs args)
+        {
+            var polygonCoords = new ObservableCollection<Position> {
+                new Position {
+                    Lat = 21.0343,
+                    Long = 105.84950
+                },
+                new Position {
+                    Lat = 21.0343,
+                    Long = 105.85050
+                },
+                new Position {
+                    Lat = 21.0323,
+                    Long = 105.85050
+                },
+                new Position {
+                    Lat = 21.0323,
+                    Long = 105.84950
+                },
+                new Position {
+                    Lat = 21.0343,
+                    Long = 105.84950
+                },
+            };
+
+            var polygon = new PolygonAnnotation
+            {
+                Coordinates = polygonCoords,
+                Title = "Polygon",
+                StrokeWidth = 2,
+                StrokeColor = Color.Pink,
+                FillColor = Color.LightPink,
+                Alpha = 0.5,
+            };
+
+            map.Annotations.Add(polygon);
+
+            var marker = new PointAnnotation
+            {
+                Coordinate = new Position(21.0333, 105.8500),
+                Title = "Marker",
+            };
+
+            map.Annotations.Add(marker);
+        }
     }
 }
