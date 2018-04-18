@@ -1102,6 +1102,7 @@ namespace Naxam.Controls.Mapbox.Platform.iOS
                 newStyle = new MapStyle(mapView.StyleURL.AbsoluteString);
                 newStyle.Name = style.Name;
                 Element.MapStyle = newStyle;
+                UpdateMapStyle();
             }
             else
             {
