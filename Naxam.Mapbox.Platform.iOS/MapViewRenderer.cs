@@ -69,6 +69,10 @@ namespace Naxam.Controls.Mapbox.Platform.iOS
             {
                 MapView.PitchEnabled = Element.PitchEnabled;
             }
+			else if (e.PropertyName == FormsMap.ScrollEnabledProperty.PropertyName && MapView.ScrollEnabled != Element.ScrollEnabled)
+            {
+                MapView.ScrollEnabled = Element.ScrollEnabled;
+            }
             else if (e.PropertyName == FormsMap.RotateEnabledProperty.PropertyName && MapView.RotateEnabled != Element.RotateEnabled)
             {
                 MapView.RotateEnabled = Element.RotateEnabled;
@@ -444,6 +448,23 @@ namespace Naxam.Controls.Mapbox.Platform.iOS
                 }
             };
         }
+
+		[Export("mapView:viewForAnnotation:")]
+        public MGLAnnotationView MapView_ViewForAnnotation(MGLMapView mapView, MGLPointAnnotation annotation)
+        {
+            var annotationView = mapView.DequeueReusableAnnotationViewWithIdentifier("draggablePoint");
+            if (annotationView != null) return annotationView;
+            var view = new DraggableAnnotationView(reuseIdentifier: "draggablePoint", size: 24);
+            view.DragFinished += (sender, e) => {
+                var point = new PointAnnotation();
+                point.HandleId = annotation.Handle.ToString();
+                point.Coordinate = TypeConverter.FromCoordinateToPosition(annotation.Coordinate);
+                Element.DragFinishedCommand?.Execute(point);
+            };
+
+            return view;
+        }
+
 
         Task<byte[]> TakeMapSnapshot()
         {
@@ -1050,6 +1071,7 @@ namespace Naxam.Controls.Mapbox.Platform.iOS
                 {
                     shape.SetId(annotation.Id);
                 }
+				annotation.HandleId = shape.Handle.ToString();
             }
 
             return shape;

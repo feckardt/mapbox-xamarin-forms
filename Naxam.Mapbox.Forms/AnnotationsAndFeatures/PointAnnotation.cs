@@ -12,5 +12,8 @@ namespace Naxam.Controls.Mapbox.Forms
 			get;
 			set;
 		}
+
+		public EventHandler<string> FinishDragged { get; set; }
+
 	}
 }

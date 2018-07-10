@@ -90,10 +90,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
-    <Reference Include="Naxam.Mapbox.iOS">
-      <HintPath>..\packages\Naxam.Mapbox.iOS.3.7.6\lib\Xamarin.iOS10\Naxam.Mapbox.iOS.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Xamarin.Forms.Core">
       <HintPath>..\packages\Xamarin.Forms.2.5.1.444934\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
     </Reference>
@@ -105,6 +101,10 @@
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml">
       <HintPath>..\packages\Xamarin.Forms.2.5.1.444934\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Naxam.Mapbox.iOS">
+      <HintPath>..\packages\Naxam.Mapbox.iOS.3.7.6\lib\Xamarin.iOS10\Naxam.Mapbox.iOS.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +122,7 @@
     <Compile Include="Extensions\MGLOfflinePackExtensions.cs" />
     <Compile Include="Extensions\MGLOfflinePackProgressExtensions.cs" />
     <Compile Include="OfflineStorageService.cs" />
+    <Compile Include="DraggableAnnotationView.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Naxam.Mapbox.Forms\Naxam.Mapbox.Forms.csproj">
