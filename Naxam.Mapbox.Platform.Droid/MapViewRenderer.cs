@@ -432,7 +432,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
             else if (e.PropertyName == MapView.ShowUserLocationProperty.PropertyName)
             {
-
+                locationPlugin.LocationLayerEnabled = Element.ShowUserLocation;
             }
         }
 
@@ -463,6 +463,11 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             if (lastLocation != null)
             {
                 originLocation = lastLocation;
+                Element.UserLocation = new Position
+                {
+                    Lat = lastLocation.Latitude,
+                    Long= lastLocation.Longitude
+                };
                 setCameraPosition(lastLocation);
             }
             locationEngine.AddLocationEngineListener(this);

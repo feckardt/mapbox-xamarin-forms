@@ -55,7 +55,7 @@ namespace MapBoxQs
             set
             {
                 _EnableUserLocation = value;
-                OnPropertyChanged("_EnableUserLocation");
+                OnPropertyChanged("EnableUserLocation");
             }
         }
         ObservableCollection<Annotation> _Annotations;
@@ -131,7 +131,6 @@ namespace MapBoxQs
                 Lat= 21.001646,
                 Long= 105.845671
             };
-            EnableUserLocation = true;
 
             Annotations = new ObservableCollection<Annotation> {
                 new PointAnnotation {
@@ -505,11 +504,8 @@ namespace MapBoxQs
         bool CanExecuteFocusUserLocationCommand(object parameter) { return true; }
         void ExecuteFocusUserLocationCommand(object parameter)
         {
-            CenterLocation = new Position
-            {
-                Lat= 21.031705,
-                Long= 105.799449
-            };
+            EnableUserLocation = !EnableUserLocation;
+            
         }
 
         #region Custom locations

@@ -102,7 +102,7 @@ namespace Naxam.Controls.Mapbox.Forms
             typeof(bool),
             typeof(MapView),
             default(bool),
-            BindingMode.OneWay
+            BindingMode.TwoWay
         );
         public bool ShowUserLocation
         {
