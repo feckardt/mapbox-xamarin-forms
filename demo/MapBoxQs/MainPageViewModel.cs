@@ -38,6 +38,26 @@ namespace MapBoxQs
         OfflinePackRegion forcedRegion;
         IOfflineStorageService offlineService;
         public event PropertyChangedEventHandler PropertyChanged;
+        private Position _UserLocation;
+        public Position UserLocation
+        {
+            get { return _UserLocation; }
+            set
+            {
+                _UserLocation = value;
+                OnPropertyChanged("UserLocation");
+            }
+        }
+        private bool _EnableUserLocation;
+        public bool EnableUserLocation
+        {
+            get { return _EnableUserLocation; }
+            set
+            {
+                _EnableUserLocation = value;
+                OnPropertyChanged("_EnableUserLocation");
+            }
+        }
         ObservableCollection<Annotation> _Annotations;
         public ObservableCollection<Annotation> Annotations
         {
@@ -107,6 +127,11 @@ namespace MapBoxQs
         {
             MBService = new MapBoxQs.Services.MapBoxService();
             Annotations = new ObservableCollection<Annotation>();
+            UserLocation = new Position {
+                Lat= 21.001646,
+                Long= 105.845671
+            };
+            EnableUserLocation = true;
 
             Annotations = new ObservableCollection<Annotation> {
                 new PointAnnotation {
@@ -187,18 +212,7 @@ namespace MapBoxQs
             });
         }
 
-        private Position _UserLocation;
-
-        public Position UserLocation
-        {
-            get { return _UserLocation; }
-            set
-            {
-                _UserLocation = value;
-                OnPropertyChanged("UserLocation");
-            }
-        }
-
+        
 
         public ICommand DidFinishLoadingStyleCommand { get; set; }
 
@@ -491,7 +505,11 @@ namespace MapBoxQs
         bool CanExecuteFocusUserLocationCommand(object parameter) { return true; }
         void ExecuteFocusUserLocationCommand(object parameter)
         {
-            CenterLocation = UserLocation;
+            CenterLocation = new Position
+            {
+                Lat= 21.031705,
+                Long= 105.799449
+            };
         }
 
         #region Custom locations

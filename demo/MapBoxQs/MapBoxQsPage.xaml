@@ -62,7 +62,7 @@
             x:Name="Map"
             Grid.Row="1"
             DragFinishedCommand="{Binding DragFinishedCommand}"
-            ShowUserLocation="true"
+            ShowUserLocation="False"
             Center="{Binding CenterLocation}"
             VerticalOptions="FillAndExpand"
             Annotations="{Binding Annotations}"

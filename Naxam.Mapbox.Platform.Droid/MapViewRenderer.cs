@@ -33,23 +33,32 @@ using MMarker = Com.Mapbox.Mapboxsdk.Annotations.MarkerOptions;
 
 using FPolyline = Naxam.Controls.Mapbox.Forms.PolylineAnnotation;
 using MPolyline = Com.Mapbox.Mapboxsdk.Annotations.PolylineOptions;
-using Com.Mapbox.Mapboxsdk.Offline;
+using Com.Mapbox.Android.Core.Permissions;
+using Com.Mapbox.Android.Core.Location;
+using Android.Locations;
+using Com.Mapbox.Mapboxsdk.Plugins.Locationlayer;
 
 namespace Naxam.Controls.Mapbox.Platform.Droid
 {
-    public partial class MapViewRenderer : ViewRenderer<MapView, View>, IOnMapReadyCallback
+    public partial class MapViewRenderer : ViewRenderer<MapView, View>, IOnMapReadyCallback, ILocationEngineListener, IPermissionsListener
     {
         MapboxMap map;
         MapViewFragment fragment;
-        private const int SIZE_ZOOM = 13;
-        private Position currentCamera;
+        const int SIZE_ZOOM = 13;
+        readonly Context context;
+        Position currentCamera;
         bool mapReady;
         Dictionary<string, Sdk.Annotations.Annotation> _annotationDictionaries;
+        private PermissionsManager permissionsManager;
+        private LocationLayerPlugin locationPlugin;
+        private LocationEngine locationEngine;
+        private Location originLocation;
+
         public MapViewRenderer(Context context) : base(context)
         {
             _annotationDictionaries = new Dictionary<string, Sdk.Annotations.Annotation>();
+            this.context = context;
         }
-
         protected override void OnElementChanged(ElementChangedEventArgs<MapView> e)
         {
             base.OnElementChanged(e);
@@ -101,7 +110,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 }
             }
         }
-
         private void Element_AnnotationChanged(object sender, AnnotationChangeEventArgs e)
         {
             if (e.OldAnnotation is INotifyCollectionChanged oldCollection)
@@ -120,7 +128,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 AddAnnotations(Element?.Annotations?.ToArray());
             }
         }
-
         public void SetupFunctions()
         {
             Element.TakeSnapshotFunc += TakeMapSnapshot;
@@ -261,7 +268,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 return true;
             };
         }
-
         private byte[] GetStyleImage(string imageName)
         {
             var img = map.GetImage(imageName);
@@ -273,7 +279,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
             return null;
         }
-
         private StyleLayer GetStyleLayer(string layerId, bool isCustomLayer)
         {
             var layer = map.GetLayer(isCustomLayer ? layerId.Prefix() : layerId);
@@ -324,7 +329,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }));
             return tcs.Task;
         }
-
         IFeature[] GetFeaturesAroundPoint(Point point, double radius, string[] layers)
         {
             var output = new List<IFeature>();
@@ -426,6 +430,48 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                     map.AnimateCamera(CameraUpdateFactory.ZoomTo(Element.ZoomLevel));
                 }
             }
+            else if (e.PropertyName == MapView.ShowUserLocationProperty.PropertyName)
+            {
+
+            }
+        }
+
+        private void EnableLocationPlugin()
+        {
+            // Check if permissions are enabled and if not request
+            if (PermissionsManager.AreLocationPermissionsGranted(context))
+            {
+                InitializeLocationEngine();
+                locationPlugin = new LocationLayerPlugin(fragment.MapView, map, locationEngine);
+                locationPlugin.RenderMode = 4;
+            }
+            else
+            {
+                permissionsManager = new PermissionsManager(this);
+                // check this later
+                permissionsManager.RequestLocationPermissions(fragment.Activity);
+            }
+        }
+
+        private void InitializeLocationEngine()
+        {
+            LocationEngineProvider locationEngineProvider = new LocationEngineProvider(fragment.Activity.ApplicationContext);
+            locationEngine = locationEngineProvider.ObtainBestLocationEngineAvailable();
+            locationEngine.Priority = LocationEnginePriority.HighAccuracy;
+            locationEngine.Activate();
+
+            Location lastLocation = locationEngine.LastLocation;
+            if (lastLocation != null)
+            {
+                originLocation = lastLocation;
+                setCameraPosition(lastLocation);
+            }
+            locationEngine.AddLocationEngineListener(this);
+        }
+
+        private void setCameraPosition(Location location)
+        {
+            map.AnimateCamera(CameraUpdateFactory.NewLatLngZoom(new LatLng(location.Latitude, location.Longitude), 13));
         }
 
         void UpdateMapStyle()
@@ -999,8 +1045,39 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                     notifyCollection.CollectionChanged += OnAnnotationsCollectionChanged;
                 }
             }
+            EnableLocationPlugin();
         }
 
+        public void OnExplanationNeeded(IList<string> p0)
+        {
+        }
+
+        public void OnPermissionResult(bool granted)
+        {
+            if (granted)
+            {
+                EnableLocationPlugin();
+            }
+            else
+            {
+              //  finish();
+            }
+        }
+
+        public void OnConnected()
+        {
+            locationEngine.RequestLocationUpdates();
+        }
+
+        public void OnLocationChanged(Location location)
+        {
+            if (location != null)
+            {
+                originLocation = location;
+                setCameraPosition(location);
+                locationEngine.RemoveLocationEngineListener(this);
+            }
+        }
     }
 
     class SnapshotReadyCallback : Java.Lang.Object, ISnapshotReadyCallback
