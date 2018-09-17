@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Linq;
-using Android.Graphics;
-using Android.Support.V4.Widget;
-using Android.Views;
-using Com.Mapbox.Mapboxsdk.Annotations;
-using Com.Mapbox.Mapboxsdk.Geometry;
 using Com.Mapbox.Mapboxsdk.Maps;
 using Naxam.Controls.Mapbox.Forms;
-using static Android.Support.V4.Widget.NestedScrollView;
-using static Com.Mapbox.Mapboxsdk.Maps.MapboxMap;
 using MapView = Com.Mapbox.Mapboxsdk.Maps.MapView;
 
 namespace Naxam.Controls.Mapbox.Platform.Droid
@@ -28,6 +21,48 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             map.CameraMoveCancel += Map_CameraMoveCancel;
             map.CameraMove += Map_CameraMove;
             fragment.OnMapChangedListener = (this);
+            fragment.Started += Fragment_Started;
+            fragment.Stopped += Fragment_Stopped;
+            fragment.Destroyed += Fragment_Destroyed;
+            fragment.RequestPermissionsResult += Fragment_RequestPermissionsResult; ;
+        }
+
+        private void Fragment_RequestPermissionsResult(int p1, string[] p2, Android.Content.PM.Permission[] p3)
+        {
+            int[] result = Array.ConvertAll(p3, value => (int)value);
+            permissionsManager.OnRequestPermissionsResult(p1, p2, result);
+        }
+
+        private void Fragment_Destroyed(object sender, EventArgs e)
+        {
+            if (locationEngine != null)
+            {
+                locationEngine.Deactivate();
+            }
+        }
+
+        private void Fragment_Stopped(object sender, EventArgs e)
+        {
+            if (locationEngine != null)
+            {
+                locationEngine.RemoveLocationUpdates();
+            }
+            if (locationPlugin != null)
+            {
+                locationPlugin.OnStop();
+            }
+        }
+
+        private void Fragment_Started(object sender, EventArgs e)
+        {
+            if (locationEngine != null)
+            {
+                locationEngine.RequestLocationUpdates();
+            }
+            if (locationPlugin != null)
+            {
+                locationPlugin.OnStart();
+            }
         }
 
         void RemoveMapEvents()

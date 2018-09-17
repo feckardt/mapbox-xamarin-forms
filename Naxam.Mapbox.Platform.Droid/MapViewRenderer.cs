@@ -448,14 +448,13 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             else
             {
                 permissionsManager = new PermissionsManager(this);
-                // check this later
                 permissionsManager.RequestLocationPermissions(fragment.Activity);
             }
         }
 
         private void InitializeLocationEngine()
         {
-            LocationEngineProvider locationEngineProvider = new LocationEngineProvider(fragment.Activity.ApplicationContext);
+            LocationEngineProvider locationEngineProvider = new LocationEngineProvider(context);
             locationEngine = locationEngineProvider.ObtainBestLocationEngineAvailable();
             locationEngine.Priority = LocationEnginePriority.HighAccuracy;
             locationEngine.Activate();
@@ -997,7 +996,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
         }
 
-        public void OnMapReady(MapboxMap mapBox)
+        async public void OnMapReady(MapboxMap mapBox)
         {
             map = mapBox;
             map.SetStyle("mapbox://styles/mapbox/streets-v9");
@@ -1060,7 +1059,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
             else
             {
-              //  finish();
+                fragment.Activity.Finish();
             }
         }
 
@@ -1078,6 +1077,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 locationEngine.RemoveLocationEngineListener(this);
             }
         }
+
     }
 
     class SnapshotReadyCallback : Java.Lang.Object, ISnapshotReadyCallback
