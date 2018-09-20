@@ -37,6 +37,7 @@ using Com.Mapbox.Android.Core.Permissions;
 using Com.Mapbox.Android.Core.Location;
 using Android.Locations;
 using Com.Mapbox.Mapboxsdk.Plugins.Locationlayer;
+using Android.OS;
 
 namespace Naxam.Controls.Mapbox.Platform.Droid
 {
@@ -59,6 +60,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             _annotationDictionaries = new Dictionary<string, Sdk.Annotations.Annotation>();
             this.context = context;
         }
+
         protected override void OnElementChanged(ElementChangedEventArgs<MapView> e)
         {
             base.OnElementChanged(e);
@@ -67,6 +69,11 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 e.OldElement.AnnotationChanged -= Element_AnnotationChanged;
                 e.OldElement.TakeSnapshotFunc -= TakeMapSnapshot;
                 e.OldElement.GetFeaturesAroundPointFunc -= GetFeaturesAroundPoint;
+                fragment.Stopped -= Fragment_Started;
+                fragment.Started -= Fragment_Stopped;
+                fragment.Destroyed -= Fragment_Destroyed;
+                fragment.RequestPermissionsResult -= Fragment_RequestPermissionsResult;
+
                 if (map != null)
                 {
                     RemoveMapEvents();
@@ -109,6 +116,8 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                     OnMapRegionChanged();
                 }
             }
+
+
         }
         private void Element_AnnotationChanged(object sender, AnnotationChangeEventArgs e)
         {
@@ -286,27 +295,27 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             {
                 return background.ToForms();
             }
-            if (layer is Com.Mapbox.Mapboxsdk.Style.Layers.CircleLayer circle)
+            if (layer is Sdk.Style.Layers.CircleLayer circle)
             {
                 return circle.ToForms();
             }
-            if (layer is Com.Mapbox.Mapboxsdk.Style.Layers.LineLayer line)
+            if (layer is Sdk.Style.Layers.LineLayer line)
             {
                 return line.ToForms();
             }
-            if (layer is Com.Mapbox.Mapboxsdk.Style.Layers.FillLayer fill)
+            if (layer is Sdk.Style.Layers.FillLayer fill)
             {
                 return fill.ToForms();
             }
-            if (layer is Com.Mapbox.Mapboxsdk.Style.Layers.SymbolLayer symbol)
+            if (layer is Sdk.Style.Layers.SymbolLayer symbol)
             {
                 return symbol.ToForms();
             }
-            if (layer is Com.Mapbox.Mapboxsdk.Style.Layers.RasterLayer raster)
+            if (layer is Sdk.Style.Layers.RasterLayer raster)
             {
                 return raster.ToForms();
             }
-            if (layer is Com.Mapbox.Mapboxsdk.Style.Layers.UnknownLayer unknown)
+            if (layer is Sdk.Style.Layers.UnknownLayer unknown)
             {
                 return null;
             }
@@ -342,7 +351,14 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         protected override void Dispose(bool disposing)
         {
             RemoveMapEvents();
-
+            permissionsManager?.Dispose();
+            locationEngine?.Dispose();
+            locationPlugin?.Dispose();
+            originLocation?.Dispose();
+            permissionsManager = null;
+            locationEngine = null;
+            locationPlugin = null;
+            originLocation = null;
             if (fragment != null)
             {
                 if (fragment.StateSaved)
@@ -373,7 +389,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             if (map == null || mapReady == false) { return; }
             CameraPosition position = new CameraPosition.Builder()
                 .Target(latLng)
-                .Zoom(Math.Abs(Element.ZoomLevel - 0) < 0.01 ? SIZE_ZOOM : Element.ZoomLevel)
+                .Zoom(System.Math.Abs(Element.ZoomLevel - 0) < 0.01 ? SIZE_ZOOM : Element.ZoomLevel)
                 .Build();
             map.AnimateCamera(CameraUpdateFactory.NewCameraPosition(position), 1000);
         }
@@ -422,7 +438,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
             else if (e.PropertyName == MapView.ZoomLevelProperty.PropertyName && map != null)
             {
-                var dif = Math.Abs(map.CameraPosition.Zoom - Element.ZoomLevel);
+                var dif = System.Math.Abs(map.CameraPosition.Zoom - Element.ZoomLevel);
                 System.Diagnostics.Debug.WriteLine($"Current zoom: {map.CameraPosition.Zoom} - New zoom: {Element.ZoomLevel}");
                 if (dif >= 0.01 && cameraBusy == false)
                 {
@@ -466,7 +482,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 Element.UserLocation = new Position
                 {
                     Lat = lastLocation.Latitude,
-                    Long= lastLocation.Longitude
+                    Long = lastLocation.Longitude
                 };
                 setCameraPosition(lastLocation);
             }
@@ -900,7 +916,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                         Icon icon = iconFactory.FromResource(Context.Resources.GetIdentifier(imgName, "drawable", Context.PackageName));
                         marker.SetIcon(icon);
                     }
-                    catch (Exception e)
+                    catch (System.Exception e)
                     {
                         System.Diagnostics.Debug.WriteLine("MapRendererAndroid:" + e.Message);
                     }
@@ -1073,6 +1089,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             locationEngine.RequestLocationUpdates();
         }
 
+      
         public void OnLocationChanged(Location location)
         {
             if (location != null)

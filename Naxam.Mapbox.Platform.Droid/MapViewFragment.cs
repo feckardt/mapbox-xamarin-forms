@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
 using Android.Content.PM;
-using Android.Locations;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using Com.Mapbox.Android.Core.Location;
-using Com.Mapbox.Android.Core.Permissions;
 using Com.Mapbox.Mapboxsdk.Annotations;
 using Com.Mapbox.Mapboxsdk.Maps;
 
@@ -61,7 +57,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             MapView?.RemoveOnMapChangedListener(this);
             Destroyed?.Invoke(this,null);
         }
-
         public void OnMapChanged(int p0)
         {
             OnMapChangedListener?.OnMapChanged(p0);

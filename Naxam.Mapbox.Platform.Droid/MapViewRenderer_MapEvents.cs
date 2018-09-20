@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Linq;
+using Android.Support.V7.App;
 using Com.Mapbox.Mapboxsdk.Maps;
 using Naxam.Controls.Mapbox.Forms;
 using MapView = Com.Mapbox.Mapboxsdk.Maps.MapView;
@@ -24,8 +25,10 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             fragment.Started += Fragment_Started;
             fragment.Stopped += Fragment_Stopped;
             fragment.Destroyed += Fragment_Destroyed;
-            fragment.RequestPermissionsResult += Fragment_RequestPermissionsResult; ;
+            fragment.RequestPermissionsResult += Fragment_RequestPermissionsResult; 
         }
+
+       
 
         private void Fragment_RequestPermissionsResult(int p1, string[] p2, Android.Content.PM.Permission[] p3)
         {
