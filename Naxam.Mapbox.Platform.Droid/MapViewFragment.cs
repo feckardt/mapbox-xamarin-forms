@@ -15,12 +15,10 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         public event EventHandler Stopped;
         public event EventHandler Destroyed;
         public event MyHandler RequestPermissionsResult;
+
         public MapView MapView { get; private set; }
-
         public MapView.IOnMapChangedListener OnMapChangedListener { get; set; }
-
         public bool StateSaved { get; private set; }
-
         public MapViewFragment(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
@@ -28,7 +26,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
 
         public MapViewFragment() : base()
         {
-
         }
 
         public override void OnStart()
@@ -40,7 +37,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-
             MapView = view as MapView;
             MapView?.AddOnMapChangedListener(this);
         }
@@ -48,14 +44,14 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         public override void OnStop()
         {
             base.OnStop();
-            Stopped?.Invoke(this,null);
+            Stopped?.Invoke(this, null);
         }
 
         public override void OnDestroyView()
         {
             base.OnDestroyView();
             MapView?.RemoveOnMapChangedListener(this);
-            Destroyed?.Invoke(this,null);
+            Destroyed?.Invoke(this, null);
         }
         public void OnMapChanged(int p0)
         {
@@ -89,7 +85,5 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             RequestPermissionsResult?.Invoke(requestCode, permissions, grantResults);
         }
-
-
     }
 }

@@ -37,7 +37,6 @@ using Com.Mapbox.Android.Core.Permissions;
 using Com.Mapbox.Android.Core.Location;
 using Android.Locations;
 using Com.Mapbox.Mapboxsdk.Plugins.Locationlayer;
-using Android.OS;
 
 namespace Naxam.Controls.Mapbox.Platform.Droid
 {
@@ -112,13 +111,12 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                             notifyCollection.CollectionChanged += OnAnnotationsCollectionChanged;
                         }
                     }
-
                     OnMapRegionChanged();
                 }
             }
-
-
         }
+
+        
         private void Element_AnnotationChanged(object sender, AnnotationChangeEventArgs e)
         {
             if (e.OldAnnotation is INotifyCollectionChanged oldCollection)
@@ -446,7 +444,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                     map.AnimateCamera(CameraUpdateFactory.ZoomTo(Element.ZoomLevel));
                 }
             }
-            else if (e.PropertyName == MapView.ShowUserLocationProperty.PropertyName)
+            else if (e.PropertyName == MapView.ShowUserLocationProperty.PropertyName && locationPlugin != null)
             {
                 locationPlugin.LocationLayerEnabled = Element.ShowUserLocation;
             }
@@ -455,7 +453,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         private void EnableLocationPlugin()
         {
             // Check if permissions are enabled and if not request
-            if (PermissionsManager.AreLocationPermissionsGranted(context))
+            if (PermissionsManager.AreLocationPermissionsGranted(fragment.Activity.ApplicationContext))
             {
                 InitializeLocationEngine();
                 locationPlugin = new LocationLayerPlugin(fragment.MapView, map, locationEngine);
@@ -1072,6 +1070,22 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         {
         }
 
+        public void OnConnected()
+        {
+            locationEngine.RequestLocationUpdates();
+        }
+
+
+        public void OnLocationChanged(Location location)
+        {
+            if (location != null)
+            {
+                originLocation = location;
+                setCameraPosition(location);
+                locationEngine.RemoveLocationEngineListener(this);
+            }
+        }
+
         public void OnPermissionResult(bool granted)
         {
             if (granted)
@@ -1083,23 +1097,6 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 fragment.Activity.Finish();
             }
         }
-
-        public void OnConnected()
-        {
-            locationEngine.RequestLocationUpdates();
-        }
-
-      
-        public void OnLocationChanged(Location location)
-        {
-            if (location != null)
-            {
-                originLocation = location;
-                setCameraPosition(location);
-                locationEngine.RemoveLocationEngineListener(this);
-            }
-        }
-
     }
 
     class SnapshotReadyCallback : Java.Lang.Object, ISnapshotReadyCallback

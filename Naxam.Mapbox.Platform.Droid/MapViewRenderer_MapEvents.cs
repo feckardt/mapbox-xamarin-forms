@@ -25,10 +25,8 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             fragment.Started += Fragment_Started;
             fragment.Stopped += Fragment_Stopped;
             fragment.Destroyed += Fragment_Destroyed;
-            fragment.RequestPermissionsResult += Fragment_RequestPermissionsResult; 
+            fragment.RequestPermissionsResult += Fragment_RequestPermissionsResult;
         }
-
-       
 
         private void Fragment_RequestPermissionsResult(int p1, string[] p2, Android.Content.PM.Permission[] p3)
         {
