@@ -364,7 +364,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(objectFeature["properties"].ToString()); ;
         }
 
-        private void FocustoLocation(LatLng latLng)
+        protected virtual void FocustoLocation(LatLng latLng)
         {
             if (map == null || mapReady == false) { return; }
             CameraPosition position = new CameraPosition.Builder()

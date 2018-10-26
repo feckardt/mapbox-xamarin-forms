@@ -17,7 +17,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
 
     public partial class MapViewRenderer : MapView.IOnMapChangedListener
     {
-        bool cameraBusy;
+        protected bool cameraBusy;
         protected virtual void AddMapEvents()
         {
             map.MarkerClick += MarkerClicked;
@@ -69,7 +69,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             if (map?.SelectedMarkers.Count > 0)
                 map.DeselectMarkers();
         }
-        private void OnCameraIdle(object sender, EventArgs e)
+        protected virtual void OnCameraIdle(object sender, EventArgs e)
         {
             cameraBusy = false;
             currentCamera.Lat = map.CameraPosition.Target.Latitude;
