@@ -52,7 +52,8 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
 
         public override void OnSaveInstanceState(Bundle outState)
         {
-            base.OnSaveInstanceState(outState);
+            // This was causing crashes when minimizing app.
+            ////base.OnSaveInstanceState(outState);
         }
 
         internal void ToggleInfoWindow(MapboxMap mapboxMap, Marker marker)
