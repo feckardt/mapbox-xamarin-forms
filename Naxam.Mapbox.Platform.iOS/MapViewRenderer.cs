@@ -1205,7 +1205,7 @@ namespace Naxam.Controls.Mapbox.Platform.iOS
         //}
 
         [Export("mapView:didFinishLoadingStyle:"),]
-        void DidFinishLoadingStyle(MGLMapView mapView, MGLStyle style)
+        protected virtual void DidFinishLoadingStyle(MGLMapView mapView, MGLStyle style)
         {
             MapStyle newStyle;
             if (Element.MapStyle == null)
