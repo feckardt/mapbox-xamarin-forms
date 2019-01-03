@@ -27,6 +27,12 @@ namespace Naxam.Controls.Mapbox.Forms
 
     public partial class MapView : View
     {
+        public readonly bool IsFragment;
+
+        public MapView(bool isFragment = true)
+        {
+            this.IsFragment = isFragment;
+        }
 
         public event EventHandler<AnnotationChangeEventArgs> AnnotationChanged;
         public static readonly BindableProperty IsMarkerClickedProperty = BindableProperty.Create(
