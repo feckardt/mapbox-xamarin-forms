@@ -27,7 +27,15 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             map.CameraMoveStarted += Map_CameraMoveStarted;
             map.CameraMoveCancel += Map_CameraMoveCancel;
             map.CameraMove += Map_CameraMove;
-            fragment.OnMapChangedListener = (this);
+
+            if (this.fragment != null)
+            {
+                this.fragment.OnMapChangedListener = (this);
+            }
+            else if (this.mapView != null)
+            {
+                this.mapView.AddOnMapChangedListener(this);
+            }
         }
 
         protected virtual void RemoveMapEvents()
@@ -43,9 +51,13 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 map.CameraMove -= Map_CameraMove;
             }
 
-            if (fragment != null)
+            if (this.fragment != null)
             {
-                fragment.OnMapChangedListener = null;
+                this.fragment.OnMapChangedListener = null;
+            }
+            else if (this.mapView != null)
+            {
+                this.mapView.RemoveOnMapChangedListener(this);
             }
         }
 
