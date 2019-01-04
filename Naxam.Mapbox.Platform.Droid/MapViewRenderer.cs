@@ -74,7 +74,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             {
                 var activity = (AppCompatActivity)Context;
 
-                if (e.NewElement.IsFragment)
+                if (e.NewElement.InsideFragment)
                 {
                     var view = new Android.Widget.FrameLayout(activity)
                     {
