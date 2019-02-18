@@ -390,7 +390,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
 
         protected virtual string GetDefaultStyle()
         {
-            return string.Empty;
+            return "mapbox://styles/mapbox/streets-v9";
         }
 
         protected virtual void FocustoLocation(LatLng latLng)
