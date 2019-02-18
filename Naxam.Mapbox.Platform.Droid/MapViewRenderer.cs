@@ -39,10 +39,11 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
 {
     public partial class MapViewRenderer : ViewRenderer<MapView, View>, IOnMapReadyCallback
     {
-        MapboxMap map;
-        MapViewFragment fragment;
+        protected MapboxMap map;
+        protected MapViewFragment fragment;
+        protected Sdk.Maps.MapView mapView;
+        protected Position currentCamera;
         private const int SIZE_ZOOM = 13;
-        private Position currentCamera;
         bool mapReady;
         Dictionary<string, Sdk.Annotations.Annotation> _annotationDictionaries;
         public MapViewRenderer(Context context) : base(context)
@@ -66,24 +67,47 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
 
             if (e.NewElement == null)
                 return;
+
             e.NewElement.AnnotationChanged += Element_AnnotationChanged;
+
             if (Control == null)
             {
                 var activity = (AppCompatActivity)Context;
-                var view = new Android.Widget.FrameLayout(activity)
+
+                if (e.NewElement.InsideFragment)
                 {
-                    Id = GenerateViewId()
-                };
+                    var view = new Android.Widget.FrameLayout(activity)
+                    {
+                        Id = GenerateViewId()
+                    };
 
-                SetNativeControl(view);
+                    SetNativeControl(view);
 
-                fragment = new MapViewFragment();
+                    fragment = new MapViewFragment();
 
-                activity.SupportFragmentManager.BeginTransaction()
-                .Replace(view.Id, fragment)
-                .CommitAllowingStateLoss();
-                fragment.GetMapAsync(this);
-                currentCamera = new Position();
+                    activity.SupportFragmentManager.BeginTransaction()
+                        .Replace(view.Id, fragment)
+                        .CommitAllowingStateLoss();
+                    fragment.GetMapAsync(this);
+                    currentCamera = new Position();
+                }
+                else
+                {
+                    this.mapView = new Sdk.Maps.MapView(activity);
+                    this.mapView.SetStyleUrl(this.GetDefaultStyle());
+
+                    // TODO: Call these lifecycle events in the correct place. They should be called from the
+                    // Activity's respective methods, not from here. Idk what problems this could cause.
+                    // Note: this is why the renderer originally used Fragments. They have their own lifecycles
+                    // that are not tied to the main activity (which we only have one of because of Forms).
+                    this.mapView.OnCreate(null);
+                    this.mapView.OnStart();
+                    this.mapView.OnResume();
+
+                    this.SetNativeControl(this.mapView);
+                    this.mapView.AddOnMapChangedListener(this);
+                    this.mapView.GetMapAsync(this);
+                }
 
                 if (mapReady)
                 {
@@ -121,7 +145,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
         }
 
-        public void SetupFunctions()
+        public virtual void SetupFunctions()
         {
             Element.TakeSnapshotFunc += TakeMapSnapshot;
             Element.GetFeaturesAroundPointFunc += GetFeaturesAroundPoint;
@@ -364,7 +388,12 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(objectFeature["properties"].ToString()); ;
         }
 
-        private void FocustoLocation(LatLng latLng)
+        protected virtual string GetDefaultStyle()
+        {
+            return "mapbox://styles/mapbox/streets-v9";
+        }
+
+        protected virtual void FocustoLocation(LatLng latLng)
         {
             if (map == null || mapReady == false) { return; }
             CameraPosition position = new CameraPosition.Builder()
@@ -428,7 +457,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
         }
 
-        void UpdateMapStyle()
+        protected virtual void UpdateMapStyle()
         {
             if (Element.MapStyle != null && !string.IsNullOrEmpty(Element.MapStyle.UrlString))
             {
@@ -954,7 +983,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         public void OnMapReady(MapboxMap mapBox)
         {
             map = mapBox;
-            map.SetStyle("mapbox://styles/mapbox/streets-v9");
+            map.SetStyle(this.GetDefaultStyle());
             mapReady = true;
             OnMapRegionChanged();
             map.UiSettings.RotateGesturesEnabled = Element.RotateEnabled;

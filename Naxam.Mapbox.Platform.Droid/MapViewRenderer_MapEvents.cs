@@ -17,8 +17,8 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
 
     public partial class MapViewRenderer : MapView.IOnMapChangedListener
     {
-        bool cameraBusy;
-        void AddMapEvents()
+        protected bool cameraBusy;
+        protected virtual void AddMapEvents()
         {
             map.MarkerClick += MarkerClicked;
             map.InfoWindowClick += InfoWindowClick;
@@ -27,10 +27,18 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             map.CameraMoveStarted += Map_CameraMoveStarted;
             map.CameraMoveCancel += Map_CameraMoveCancel;
             map.CameraMove += Map_CameraMove;
-            fragment.OnMapChangedListener = (this);
+
+            if (this.fragment != null)
+            {
+                this.fragment.OnMapChangedListener = (this);
+            }
+            else if (this.mapView != null)
+            {
+                this.mapView.AddOnMapChangedListener(this);
+            }
         }
 
-        void RemoveMapEvents()
+        protected virtual void RemoveMapEvents()
         {
             if (map != null)
             {
@@ -43,9 +51,13 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 map.CameraMove -= Map_CameraMove;
             }
 
-            if (fragment != null)
+            if (this.fragment != null)
             {
-                fragment.OnMapChangedListener = null;
+                this.fragment.OnMapChangedListener = null;
+            }
+            else if (this.mapView != null)
+            {
+                this.mapView.RemoveOnMapChangedListener(this);
             }
         }
 
@@ -69,7 +81,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             if (map?.SelectedMarkers.Count > 0)
                 map.DeselectMarkers();
         }
-        private void OnCameraIdle(object sender, EventArgs e)
+        protected virtual void OnCameraIdle(object sender, EventArgs e)
         {
             cameraBusy = false;
             currentCamera.Lat = map.CameraPosition.Target.Latitude;
@@ -78,7 +90,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             Element.Center = currentCamera;
         }
 
-        void MapClicked(object o, MapboxMap.MapClickEventArgs args)
+        protected virtual void MapClicked(object o, MapboxMap.MapClickEventArgs args)
         {
             Element.FocusPosition = false;
 
@@ -110,7 +122,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
             }
         }
 
-        public void OnMapChanged(int p0)
+        public virtual void OnMapChanged(int p0)
         {
             switch (p0)
             {
