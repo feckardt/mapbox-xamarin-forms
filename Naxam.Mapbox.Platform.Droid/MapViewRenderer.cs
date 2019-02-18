@@ -94,6 +94,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
                 else
                 {
                     this.mapView = new Sdk.Maps.MapView(activity);
+                    this.mapView.SetStyleUrl(this.GetStyle());
 
                     // TODO: Call these lifecycle events in the correct place. They should be called from the
                     // Activity's respective methods, not from here. Idk what problems this could cause.
@@ -385,6 +386,11 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         {
             Dictionary<string, object> objectFeature = JsonConvert.DeserializeObject<Dictionary<string, object>>(featureProperties);
             return JsonConvert.DeserializeObject<Dictionary<string, object>>(objectFeature["properties"].ToString()); ;
+        }
+
+        protected virtual string GetStyle()
+        {
+            return string.Empty;
         }
 
         protected virtual void FocustoLocation(LatLng latLng)
@@ -978,6 +984,7 @@ namespace Naxam.Controls.Mapbox.Platform.Droid
         {
             map = mapBox;
             map.SetStyle("mapbox://styles/mapbox/streets-v9");
+
             mapReady = true;
             OnMapRegionChanged();
             map.UiSettings.RotateGesturesEnabled = Element.RotateEnabled;
